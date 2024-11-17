@@ -3,7 +3,7 @@ volumes:
   prometheus_data:
   loki_data:
 
-  networks:
+networks:
   CEM-KEA-Monitoring:
     driver: bridge
   
