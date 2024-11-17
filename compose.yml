@@ -72,18 +72,18 @@ services:
       - ./config/blackbox.yml:/etc/blackbox_exporter/config.yml
     restart: unless-stopped
 
-  alertmanager:
-    image: prom/alertmanager:latest
-    container_name: alertmanager
-    ports:
-      - "9093:9093"
-    networks:
-      - CEM-KEA
-    volumes:
-      - ./config/alerts.yml:/etc/alertmanager/alerts.yml
-    command:
-      - "--config.file=/etc/alertmanager/alerts.yml"
-    restart: unless-stopped
+  # alertmanager:
+  #   image: prom/alertmanager:latest
+  #   container_name: alertmanager
+  #   ports:
+  #     - "9093:9093"
+  #   networks:
+  #     - CEM-KEA
+  #   volumes:
+  #     - ./config/alerts.yml:/etc/alertmanager/alerts.yml
+  #   command:
+  #     - "--config.file=/etc/alertmanager/alerts.yml"
+  #   restart: unless-stopped
 
   nginx:
     image: nginx:alpine
@@ -97,6 +97,6 @@ services:
       - prometheus
       - loki
       - blackbox_exporter
-      - alertmanager
+      #- alertmanager
     networks:
       - CEM-KEA

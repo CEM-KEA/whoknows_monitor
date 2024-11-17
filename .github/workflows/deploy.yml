@@ -34,13 +34,15 @@ jobs:
           echo "Stopping running containers..."
           docker compose down || echo "No containers running"
 
+          echo "Writing environment variables to .env file..."
+          cat <<EOT > .env
+          GF_SECURITY_ADMIN_USER=${{ secrets.GF_SECURITY_ADMIN_USER }}
+          GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GF_SECURITY_ADMIN_PASSWORD }}
+          MAIN_TARGET_IP=${{ secrets.MAIN_TARGET_IP }}
+          EOT
+
           echo "Pulling latest code..."
           git pull || exit 1
-
-          # Set environment variables directly in OS (no need for .env)
-            export GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GF_SECURITY_ADMIN_PASSWORD }}
-            export GF_SECURITY_ADMIN_USER=${{ secrets.GF_SECURITY_ADMIN_USER }}
-            export MAIN_TARGET_IP=${{ secrets.MAIN_TARGET_IP }}
 
           echo "Updating Docker images..."
           docker compose pull || exit 1
