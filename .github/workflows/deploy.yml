@@ -8,7 +8,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    env:
+      GF_SECURITY_ADMIN_USER: ${{ secrets.GF_SECURITY_ADMIN_USER }}
+      GF_SECURITY_ADMIN_PASSWORD: ${{ secrets.GF_SECURITY_ADMIN_PASSWORD }}
+      MAIN_TARGET_IP: ${{ secrets.MAIN_TARGET_IP }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
