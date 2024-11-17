@@ -4,7 +4,7 @@ volumes:
   loki_data:
 
 networks:
-  CEM-KEA-Monitoring:
+  CEM-KEA:
     driver: bridge
   
 services:
@@ -14,7 +14,7 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - CEM-KEA-Monitoring
+      - CEM-KEA
     volumes:
       - grafana_data:/var/lib/grafana
     environment:
@@ -39,7 +39,7 @@ services:
     environment:
       - MAIN_TARGET_IP=${MAIN_TARGET_IP}
     networks:
-      - CEM-KEA-Monitoring
+      - CEM-KEA
     volumes:
       - prometheus_data:/prometheus
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
@@ -53,7 +53,7 @@ services:
     ports:
       - "3100:3100"
     networks:
-      - CEM-KEA-Monitoring
+      - CEM-KEA
     volumes:
       - loki_data:/loki
       - ./config/loki-config.yml:/etc/loki/local-config.yaml
@@ -67,7 +67,7 @@ services:
     ports:
       - "9115:9115"
     networks:
-      - CEM-KEA-Monitoring
+      - CEM-KEA
     volumes:
       - ./config/blackbox.yml:/etc/blackbox_exporter/config.yml
     restart: unless-stopped
@@ -78,7 +78,7 @@ services:
     ports:
       - "9093:9093"
     networks:
-      - CEM-KEA-Monitoring
+      - CEM-KEA
     volumes:
       - ./config/alerts.yml:/etc/alertmanager/alerts.yml
     command:
@@ -99,4 +99,4 @@ services:
       - blackbox_exporter
       - alertmanager
     networks:
-      - CEM-KEA-Monitoring
+      - CEM-KEA
