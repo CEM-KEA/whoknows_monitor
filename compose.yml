@@ -102,3 +102,4 @@ services:
       - blackbox_exporter
     networks:
       - CEM-KEA
+    restart: unless-stopped
