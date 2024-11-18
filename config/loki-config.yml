@@ -11,7 +11,6 @@ ingester:
       kvstore:
         store: inmemory
       replication_factor: 1
-  zone: "default"
 
 schema_config:
   configs:
