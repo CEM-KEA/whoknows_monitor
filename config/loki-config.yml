@@ -2,6 +2,8 @@ server:
   http_listen_port: 3100
   log_level: debug
 
+auth_enabled: false
+
 ingester:
   wal:
     enabled: true
