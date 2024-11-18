@@ -29,7 +29,7 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_NAME=Main Org.
       - GF_AUTH_ANONYMOUS_USER=true
       - GF_AUTH_ANONYMOUS_USER_ORG_ROLE=Viewer
-      - GF_SERVER_ROOT_URL=https://monitor.cemdev.dk/
+      - GF_SERVER_ROOT_URL=https://monitor.cemdev.dk/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
 
     restart: unless-stopped
