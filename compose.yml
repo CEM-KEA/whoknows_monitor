@@ -2,17 +2,44 @@ volumes:
   grafana_data:
   prometheus_data:
   loki_data:
+  traefik_data:
 
 networks:
   CEM-KEA:
     driver: bridge
-  
+
 services:
+  traefik:
+    image: traefik:v3.2.0
+    container_name: traefik
+    command:
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --providers.docker=true
+      - --api.insecure=false  # Traefik's web UI (disable in production)
+      - --certificatesresolvers.myresolver.acme.tlschallenge=true
+      - --certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}
+      - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+      - --metrics.prometheus=true
+      - --log.level=INFO
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - traefik_data:/letsencrypt
+    networks:
+      - CEM-KEA
+    restart: unless-stopped
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
-    ports:
-      - "3000:3000"
+    labels:
+      - "traefik.http.routers.grafana.rule=PathPrefix(`/grafana`)"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls.certresolver=myresolver"
     networks:
       - CEM-KEA
     volumes:
@@ -27,8 +54,6 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
       - GF_AUTH_ANONYMOUS_ORG_NAME=Main Org.
-      - GF_AUTH_ANONYMOUS_USER=true
-      - GF_AUTH_ANONYMOUS_USER_ORG_ROLE=Viewer
       - GF_SERVER_ROOT_URL=https://monitor.cemdev.dk/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
     restart: unless-stopped
@@ -41,10 +66,11 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
-    ports:
-      - "9090:9090"
-    environment:
-      - MAIN_TARGET_IP=${MAIN_TARGET_IP}
+    labels:
+      - "traefik.http.routers.prometheus.rule=PathPrefix(`/prometheus`)"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+      - "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.routers.prometheus.tls.certresolver=myresolver"
     networks:
       - CEM-KEA
     volumes:
@@ -62,8 +88,11 @@ services:
   loki:
     image: grafana/loki:latest
     container_name: loki
-    ports:
-      - "3100:3100"
+    labels:
+      - "traefik.http.routers.loki.rule=PathPrefix(`/loki`)"
+      - "traefik.http.services.loki.loadbalancer.server.port=3100"
+      - "traefik.http.routers.loki.entrypoints=websecure"
+      - "traefik.http.routers.loki.tls.certresolver=myresolver"
     networks:
       - CEM-KEA
     volumes:
@@ -81,8 +110,11 @@ services:
   blackbox_exporter:
     image: prom/blackbox-exporter:latest
     container_name: blackbox_exporter
-    ports:
-      - "9115:9115"
+    labels:
+      - "traefik.http.routers.blackbox.rule=PathPrefix(`/blackbox`)"
+      - "traefik.http.services.blackbox.loadbalancer.server.port=9115"
+      - "traefik.http.routers.blackbox.entrypoints=websecure"
+      - "traefik.http.routers.blackbox.tls.certresolver=myresolver"
     networks:
       - CEM-KEA
     volumes:
@@ -93,39 +125,3 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # alertmanager:
-  #   image: prom/alertmanager:latest
-  #   container_name: alertmanager
-  #   ports:
-  #     - "9093:9093"
-  #   networks:
-  #     - CEM-KEA
-  #   volumes:
-  #     - ./config/alerts.yml:/etc/alertmanager/alerts.yml
-  #   command:
-  #     - "--config.file=/etc/alertmanager/alerts.yml"
-  #   restart: unless-stopped
-
-  nginx:
-    image: nginx:alpine
-    container_name: nginx_monitor
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./config/nginx.conf:/etc/nginx/conf.d/default.conf
-      - /etc/letsencrypt/live/monitor.cemdev.dk:/etc/letsencrypt/live/monitor.cemdev.dk:ro
-      - /etc/letsencrypt/archive/monitor.cemdev.dk:/etc/letsencrypt/archive/monitor.cemdev.dk:ro
-    depends_on:
-      grafana:
-        condition: service_healthy
-      prometheus:
-        condition: service_healthy
-      loki:
-        condition: service_healthy
-      blackbox_exporter:
-        condition: service_healthy
-    networks:
-      - CEM-KEA
-    restart: unless-stopped

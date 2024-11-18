@@ -39,6 +39,7 @@ jobs:
           GF_SECURITY_ADMIN_USER=${{ secrets.GF_SECURITY_ADMIN_USER }}
           GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GF_SECURITY_ADMIN_PASSWORD }}
           MAIN_TARGET_IP=${{ secrets.MAIN_TARGET_IP }}
+          ACME_EMAIL=${{ secrets.ACME_EMAIL }}
           EOT
 
           echo "Pulling latest code..."
