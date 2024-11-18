@@ -1,6 +1,6 @@
 server:
   http_listen_port: 3100
-  log-level: debug
+  log_level: debug
 
 ingester:
   wal:
@@ -12,8 +12,6 @@ ingester:
       kvstore:
         store: inmemory
       replication_factor: 1
-  ring:
-    zone: "default"
 
 schema_config:
   configs:
