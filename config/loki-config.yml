@@ -3,13 +3,15 @@ server:
 
 ingester:
   wal:
+    enabled: true
     dir: /loki/wal
   lifecycler:
     ring:
+      zone: "default"
       kvstore:
         store: inmemory
       replication_factor: 1
-      zone: "default"
+      tokens: []
 
 schema_config:
   configs:
@@ -20,17 +22,16 @@ schema_config:
       index:
         prefix: index_
         period: 24h
-      tsdb_shipper:
-        active_index_directory: /loki/tsdb-index
-        cache_location: /loki/tsdb-cache
 
 storage_config:
+  tsdb_shipper:
+    active_index_directory: /loki/tsdb-index
+    cache_location: /loki/tsdb-cache
   filesystem:
     directory: /loki/chunks
 
 compactor:
   working_directory: /loki/compactor
-  compaction_interval: 1h
 
 limits_config:
   retention_period: 168h  # 7 days retention
