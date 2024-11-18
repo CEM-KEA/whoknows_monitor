@@ -30,6 +30,11 @@ services:
       - GF_AUTH_ANONYMOUS_USER=true
       - GF_AUTH_ANONYMOUS_USER_ORG_ROLE=Viewer
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   prometheus:
     image: prom/prometheus:latest
@@ -46,6 +51,11 @@ services:
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   loki:
     image: grafana/loki:latest
@@ -60,6 +70,11 @@ services:
     command:
       - "-config.file=/etc/loki/local-config.yaml"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   blackbox_exporter:
     image: prom/blackbox-exporter:latest
@@ -71,6 +86,11 @@ services:
     volumes:
       - ./config/blackbox.yml:/etc/blackbox_exporter/config.yml
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9115/-/healthy || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # alertmanager:
   #   image: prom/alertmanager:latest
@@ -96,10 +116,14 @@ services:
       - /etc/letsencrypt/live/monitor.cemdev.dk:/etc/letsencrypt/live/monitor.cemdev.dk:ro
       - /etc/letsencrypt/archive/monitor.cemdev.dk:/etc/letsencrypt/archive/monitor.cemdev.dk:ro
     depends_on:
-      - grafana
-      - prometheus
-      - loki
-      - blackbox_exporter
+      grafana:
+        condition: service_healthy
+      prometheus:
+        condition: service_healthy
+      loki:
+        condition: service_healthy
+      blackbox_exporter:
+        condition: service_healthy
     networks:
       - CEM-KEA
     restart: unless-stopped
