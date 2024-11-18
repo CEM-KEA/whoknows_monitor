@@ -15,11 +15,13 @@ services:
     command:
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.http.tls=true
       - --providers.docker=true
-      - --api.insecure=false  # Traefik's web UI (disable in production)
+      - --providers.docker.exposedbydefault=false
+      - --api.insecure=false  # Traefik's web UI (disabled in production)
       - --certificatesresolvers.myresolver.acme.tlschallenge=true
       - --certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}
-      - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.myresolver.acme.storage=/acme.json
       - --metrics.prometheus=true
       - --log.level=INFO
     ports:
@@ -36,10 +38,12 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     labels:
-      - "traefik.http.routers.grafana.rule=PathPrefix(`/grafana`)"
-      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`monitor.cemdev.dk`) && PathPrefix(`/grafana`)"
       - "traefik.http.routers.grafana.entrypoints=websecure"
       - "traefik.http.routers.grafana.tls.certresolver=myresolver"
+      - "traefik.http.middlewares.grafana-stripprefix.stripprefix.prefixes=/grafana"
+      - "traefik.http.routers.grafana.middlewares=grafana-stripprefix"
     networks:
       - CEM-KEA
     volumes:
@@ -67,10 +71,12 @@ services:
     image: prom/prometheus:latest
     container_name: prometheus
     labels:
-      - "traefik.http.routers.prometheus.rule=PathPrefix(`/prometheus`)"
-      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`monitor.cemdev.dk`) && PathPrefix(`/prometheus`)"
       - "traefik.http.routers.prometheus.entrypoints=websecure"
       - "traefik.http.routers.prometheus.tls.certresolver=myresolver"
+      - "traefik.http.middlewares.prometheus-stripprefix.stripprefix.prefixes=/prometheus"
+      - "traefik.http.routers.prometheus.middlewares=prometheus-stripprefix"
     networks:
       - CEM-KEA
     volumes:
@@ -89,10 +95,12 @@ services:
     image: grafana/loki:latest
     container_name: loki
     labels:
-      - "traefik.http.routers.loki.rule=PathPrefix(`/loki`)"
-      - "traefik.http.services.loki.loadbalancer.server.port=3100"
+      - "traefik.enable=true"
+      - "traefik.http.routers.loki.rule=Host(`monitor.cemdev.dk`) && PathPrefix(`/loki`)"
       - "traefik.http.routers.loki.entrypoints=websecure"
       - "traefik.http.routers.loki.tls.certresolver=myresolver"
+      - "traefik.http.middlewares.loki-stripprefix.stripprefix.prefixes=/loki"
+      - "traefik.http.routers.loki.middlewares=loki-stripprefix"
     networks:
       - CEM-KEA
     volumes:
@@ -111,10 +119,12 @@ services:
     image: prom/blackbox-exporter:latest
     container_name: blackbox_exporter
     labels:
-      - "traefik.http.routers.blackbox.rule=PathPrefix(`/blackbox`)"
-      - "traefik.http.services.blackbox.loadbalancer.server.port=9115"
+      - "traefik.enable=true"
+      - "traefik.http.routers.blackbox.rule=Host(`monitor.cemdev.dk`) && PathPrefix(`/blackbox`)"
       - "traefik.http.routers.blackbox.entrypoints=websecure"
       - "traefik.http.routers.blackbox.tls.certresolver=myresolver"
+      - "traefik.http.middlewares.blackbox-stripprefix.stripprefix.prefixes=/blackbox"
+      - "traefik.http.routers.blackbox.middlewares=blackbox-stripprefix"
     networks:
       - CEM-KEA
     volumes:
