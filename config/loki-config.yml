@@ -8,10 +8,10 @@ ingester:
     dir: /loki/wal
   lifecycler:
     ring:
-      zone: "default"
       kvstore:
         store: inmemory
       replication_factor: 1
+  zone: "default"
 
 schema_config:
   configs:
