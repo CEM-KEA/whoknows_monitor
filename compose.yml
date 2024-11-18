@@ -41,8 +41,8 @@ services:
       - "traefik.http.routers.grafana.rule=Host(`monitor.cemdev.dk`) && PathPrefix(`/grafana`)"
       - "traefik.http.routers.grafana.entrypoints=websecure"
       - "traefik.http.routers.grafana.tls.certresolver=myresolver"
-      - "traefik.http.middlewares.grafana-stripprefix.stripprefix.prefixes=/grafana"
-      - "traefik.http.routers.grafana.middlewares=grafana-stripprefix"
+      #- "traefik.http.middlewares.grafana-stripprefix.stripprefix.prefixes=/grafana"
+      #- "traefik.http.routers.grafana.middlewares=grafana-stripprefix"
     networks:
       - CEM-KEA
     volumes:
