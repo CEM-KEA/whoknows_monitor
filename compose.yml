@@ -76,10 +76,8 @@ services:
     - "traefik.http.routers.prometheus.entrypoints=websecure"
     - "traefik.http.routers.prometheus.tls.certresolver=myresolver"
     - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
-    - "traefik.http.middlewares.prometheus-prefix.stripprefix.prefixes=/prometheus"
-    - "traefik.http.middlewares.prometheus-redirect.redirectregex.regex=^(.*)/prometheus$$"
-    - "traefik.http.middlewares.prometheus-redirect.redirectregex.replacement=$${1}/prometheus/"
-    - "traefik.http.routers.prometheus.middlewares=prometheus-prefix,prometheus-redirect"
+    - "traefik.http.middlewares.prometheus-path.addPrefix=/"
+    - "traefik.http.routers.prometheus.middlewares=prometheus-path"
     networks:
       - CEM-KEA
     volumes:
@@ -87,6 +85,8 @@ services:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.external-url=https://monitor.cemdev.dk/prometheus"
+      - "--web.route-prefix=/prometheus"
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
