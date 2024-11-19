@@ -71,12 +71,15 @@ services:
     image: prom/prometheus:latest
     container_name: prometheus
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.prometheus.rule=Host(`monitor.cemdev.dk`) && PathPrefix(`/prometheus`)"
-      - "traefik.http.routers.prometheus.entrypoints=websecure"
-      - "traefik.http.routers.prometheus.tls.certresolver=myresolver"
-      - "traefik.http.middlewares.prometheus-stripprefix.stripprefix.prefixes=/prometheus"
-      - "traefik.http.routers.prometheus.middlewares=prometheus-stripprefix"
+    - "traefik.enable=true"
+    - "traefik.http.routers.prometheus.rule=Host(`monitor.cemdev.dk`) && PathPrefix(`/prometheus`)"
+    - "traefik.http.routers.prometheus.entrypoints=websecure"
+    - "traefik.http.routers.prometheus.tls.certresolver=myresolver"
+    - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+    - "traefik.http.middlewares.prometheus-prefix.stripprefix.prefixes=/prometheus"
+    - "traefik.http.middlewares.prometheus-redirect.redirectregex.regex=^(.*)/prometheus$$"
+    - "traefik.http.middlewares.prometheus-redirect.redirectregex.replacement=$${1}/prometheus/"
+    - "traefik.http.routers.prometheus.middlewares=prometheus-prefix,prometheus-redirect"
     networks:
       - CEM-KEA
     volumes:
@@ -99,9 +102,6 @@ services:
       - "traefik.http.routers.loki.rule=Host(`monitor.cemdev.dk`) && PathPrefix(`/loki`)"
       - "traefik.http.routers.loki.entrypoints=websecure"
       - "traefik.http.routers.loki.tls.certresolver=myresolver"
-      # Remove the stripprefix middleware
-      # - "traefik.http.middlewares.loki-stripprefix.stripprefix.prefixes=/loki"
-      # - "traefik.http.routers.loki.middlewares=loki-stripprefix"
       - "traefik.http.services.loki.loadbalancer.server.port=3100"
     networks:
       - CEM-KEA
