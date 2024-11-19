@@ -83,10 +83,6 @@ services:
       - "traefik.http.routers.prometheus.entrypoints=websecure"
       - "traefik.http.routers.prometheus.tls.certresolver=myresolver"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
-      # Middleware for path handling
-      - "traefik.http.middlewares.prometheus-strip.stripprefix.forceSlash=false"
-      - "traefik.http.middlewares.prometheus-strip.stripprefix.prefixes=/prometheus"
-      - "traefik.http.routers.prometheus.middlewares=prometheus-strip"
     networks:
       - CEM-KEA
     volumes:
@@ -94,7 +90,7 @@ services:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/prometheus/-/healthy || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
