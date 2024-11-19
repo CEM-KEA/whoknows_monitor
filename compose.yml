@@ -83,6 +83,10 @@ services:
       - "traefik.http.routers.prometheus.entrypoints=websecure"
       - "traefik.http.routers.prometheus.tls.certresolver=myresolver"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+      # Middleware for path handling
+      - "traefik.http.middlewares.prometheus-strip.stripprefix.forceSlash=false"
+      - "traefik.http.middlewares.prometheus-strip.stripprefix.prefixes=/prometheus"
+      - "traefik.http.routers.prometheus.middlewares=prometheus-strip"
     networks:
       - CEM-KEA
     volumes:
