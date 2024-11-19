@@ -99,8 +99,9 @@ services:
       - "traefik.http.routers.loki.rule=Host(`monitor.cemdev.dk`) && PathPrefix(`/loki`)"
       - "traefik.http.routers.loki.entrypoints=websecure"
       - "traefik.http.routers.loki.tls.certresolver=myresolver"
-      - "traefik.http.middlewares.loki-stripprefix.stripprefix.prefixes=/loki"
-      - "traefik.http.routers.loki.middlewares=loki-stripprefix"
+      # Remove the stripprefix middleware
+      # - "traefik.http.middlewares.loki-stripprefix.stripprefix.prefixes=/loki"
+      # - "traefik.http.routers.loki.middlewares=loki-stripprefix"
       - "traefik.http.services.loki.loadbalancer.server.port=3100"
     networks:
       - CEM-KEA
