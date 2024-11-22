@@ -14,10 +14,6 @@ The `whoknows_monitor` system is a distributed monitoring solution designed for 
 
   Monitors containerized applications, collecting information about CPU, memory, network, and filesystem usage for each running container. This is essential for identifying performance issues in containerized workloads.
 
-- `nginx_exporter`
-
-  Gathers metrics from the Nginx server, such as request counts, response statuses, and processing times. This helps analyze traffic patterns and server health.
-
 - `promtail`
   
   A log collector for Loki. It scrapes logs from applications and systems running on the application VM and ships them to Loki for centralized storage and querying.
@@ -27,6 +23,10 @@ The `whoknows_monitor` system is a distributed monitoring solution designed for 
   Monitors PostgreSQL database performance by collecting metrics such as query execution times, connection counts, and table statistics. This ensures the database is functioning optimally.
 
 ### Monitoring System Components
+
+- `Traefik`
+  Traefik is a modern cloud-native HTTP reverse proxy and load balancer that automatically detects and configures services in dynamic environments. It integrates seamlessly with Docker, Kubernetes, and other   platforms, providing automatic service discovery, SSL/TLS support, and real-time configuration changes without restarts.
+
 - `Prometheus`
   
   A time-series database and monitoring system. It collects, stores, and queries metrics from exporters in the main system. Prometheus is the backbone of metric collection and alerting.
@@ -49,6 +49,7 @@ The `whoknows_monitor` system is a distributed monitoring solution designed for 
   
 
 ## Key Benefits of this Architecture
+
 - **Resilience**
   
   The monitoring system operates independently of the main application VM, ensuring that metrics and logs can still be accessed even if the application system is down.
