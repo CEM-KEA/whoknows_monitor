@@ -34,10 +34,7 @@ scrape_configs:
       - target_label: __address__
         replacement: blackbox_exporter:9115
 
-# Comment out alerting until alertmanager is set up
-#alerting:
-#  alertmanagers:
-#    - static_configs:
-#        - targets: ['localhost:9093']
-#rule_files:
-#  - alerts.yml
+  - job_name: 'whoknows-backend'
+    metrics_path: '/api/probe'
+    static_configs:
+      - targets: ['52.169.32.176:8080']
